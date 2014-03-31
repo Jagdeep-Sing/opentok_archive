@@ -1,0 +1,74 @@
+<script src="https://webrtc-js.local/sources.js"></script>
+
+<% layout('layout') -%>
+
+  <div class="container bump-me">
+
+    <div class="body-content">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Past Recordings</h3>
+        </div>
+        <div class="panel-body">
+          <% if(archives.items && archives.items.length > 0) { %>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>Created</th>
+                <th>Duration</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% archives.items.forEach(function(item) { %>
+
+              <tr data-item-id="<%= item.id %>">
+                <td><% if(item.status == 'available' && item.url) { %><a href="/download-archive?id=<%= encodeURIComponent(item.id) %>"><% } %><%= item.name %><% if(item.status == 'available' && item.url) { %></a><% } %></td>
+                <td><%= new Date(item.createdAt) %></td>
+                <td><%= item.duration %> seconds</td>
+                <td><%= item.status %></td>
+                <td><% if(item.status == 'available') { %><a href="/delete-archive?id=<%= encodeURIComponent(item.id) %>">Delete</a><% } else { %>&nbsp;<% } %></td> 
+              </tr>
+
+              <% }) %>
+            </tbody>
+          </table>
+          <% } else { %>
+          <p> 
+            There are no archives currently. Try making one in the <a href="/host-view">host view</a>.
+          </p>
+          <% } %>
+        </div>
+        <div class="panel-footer">
+          <% if(showPrevious) { %>
+          <a href="<%= showPrevious %>" class="pull-left">&larr; Newer</a>
+          <% } %>
+          &nbsp;
+          <% if(showNext) { %>
+          <a href="<%= showNext %>" class="pull-right">Older &rarr;</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+
+var lastArchiveStatus = <%- JSON.stringify(lastArchivingStatus) %>,
+    reloadOnNew = <%- JSON.stringify(!showPrevious) %>;
+
+var getLatestEvent = function() {
+  $.get("/archiving-event").done(function(body, status, jqXHR){
+    if(body.id != lastArchiveStatus.id) {
+      if($('[data-item-id=' + body.event.id + "]").length || reloadOnNew && body.event.status == 'started') {
+        location.reload();
+      }      
+      lastArchiveStatus = body;
+    }
+  });
+}
+
+setInterval(getLatestEvent, 5000);
+</script>
