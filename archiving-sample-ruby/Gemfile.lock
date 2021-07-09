@@ -11,8 +11,8 @@ GEM
     mime-types (2.0)
     opentok (0.1.2)
       addressable
-    rack (1.5.2)
-    rack-protection (1.5.1)
+    rack (1.6.13)
+    rack-protection (1.5.5)
       rack
     rest-client (1.6.7)
       mime-types (>= 1.16)
